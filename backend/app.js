@@ -1,5 +1,5 @@
 const path = require('path');
-
+const cors=require("cors");
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -12,6 +12,7 @@ const authRoutes = require('./routes/auth');
 const app = express();
 
 app.use(bodyParser.json());
+app.use(cors);
 app.use('/images', express.static(path.join('backend/images')));
 
 app.use((req, res, next) => {

@@ -81,13 +81,14 @@ router.post('', (req, res, next) => {
   const newProduct = {
     name: req.body.name,
     description: req.body.description,
-    price: Decimal128.fromString(req.body.price), // store this as 128bit decimal in MongoDB
+    price: Decimal128.fromString(req.body.price.toString()), // store this as 128bit decimal in MongoDB
     image: req.body.image
   };
   MongoClient.connect("mongodb://localhost:27017")
   .then((client)=>{  
- client.db.collection("products").insertOne(newProduct).then(result=>{
-  console.log(result);
+  let db=client.db("store")
+  db.collection("products").insertOne(newProduct).then(result=>{
+  console.log(result.name);
   client.close();
  }).catch(err=>{
   console.log(err)
