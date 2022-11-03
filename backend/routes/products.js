@@ -1,5 +1,7 @@
 const Router = require('express').Router;
-
+const mongodb=require("mongodb");
+const MongoClient=mongodb.MongoClient;
+const Decimal128=mongodb.Decimal128;
 const router = Router();
 
 const products = [
@@ -79,10 +81,23 @@ router.post('', (req, res, next) => {
   const newProduct = {
     name: req.body.name,
     description: req.body.description,
-    price: parseFloat(req.body.price), // store this as 128bit decimal in MongoDB
+    price: Decimal128.fromString(req.body.price), // store this as 128bit decimal in MongoDB
     image: req.body.image
   };
-  console.log(newProduct);
+  MongoClient.connect("mongodb://localhost:27017")
+  .then((client)=>{  
+ client.db.collection("products").insertOne(newProduct).then(result=>{
+  console.log(result);
+  client.close();
+ }).catch(err=>{
+  console.log(err)
+  client.close();
+ })
+  client.close();
+  })
+  .catch(err=>
+    console.log(err)
+    )
   res.status(201).json({ message: 'Product added', productId: 'DUMMY' });
 });
 
