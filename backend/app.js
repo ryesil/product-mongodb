@@ -1,7 +1,6 @@
 const path = require('path');
 const express = require('express');
 const bodyParser = require('body-parser');
-console.log(bodyParser)
 const mongodb=require("mongodb").MongoClient;
 
 
@@ -33,9 +32,6 @@ app.use((req, res, next) => {
 app.use('/products', productRoutes);
 app.use('/', authRoutes);
 
-app.get('/', (req, res) => {
-  res.send('root')
-})
 
 
 app.listen(3100);
