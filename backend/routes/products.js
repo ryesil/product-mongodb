@@ -57,16 +57,39 @@ const products = [
 router.get("/", (req, res, next) => {
   // Return a list of dummy products
   // Later, this data will be fetched from MongoDB
-  const queryPage = req.query.page;
-  const pageSize = 5;
-  let resultProducts = [...products];
-  if (queryPage) {
-    resultProducts = products.slice(
-      (queryPage - 1) * pageSize,
-      queryPage * pageSize
-    );
-  }
-  res.json(resultProducts);
+  // const queryPage = req.query.page;
+  // const pageSize = 5;
+  // let resultProducts = [...products];
+  // if (queryPage) {
+  //   resultProducts = products.slice(
+  //     (queryPage - 1) * pageSize,
+  //     queryPage * pageSize
+  //   );
+  // }
+  MongoClient.connect("mongodb://0.0.0.0:27017/")
+    .then((client) => {
+      const products=[];
+      let db = client.db("store");
+      db.collection("products")
+        .find()
+        .forEach((productDoc) => {
+          productDoc.price=productDoc.price.toString();
+          products.push(productDoc)
+        })
+        .then((result) => {
+          client.close();
+          res.status(200).json(products);
+        })
+        .catch((err) => {
+          console.log(err);
+          client.close();
+          res.status(500).json({ message: "An error occured" });
+        });
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({ message: "An error occured" });
+    });
 });
 
 // Get single product
@@ -93,17 +116,20 @@ router.post("", (req, res, next) => {
         .then((result) => {
           console.log(result);
           client.close();
+          res
+            .status(201)
+            .json({ message: "Product added", productId: result.insertedId });
         })
         .catch((err) => {
           console.log(err);
           client.close();
+          res.status(500).json({ message: "An error occured" });
         });
     })
     .catch((err) => {
       console.log(err);
-      client.close();
+      res.status(500).json({ message: "An error occured" });
     });
-  res.status(201).json({ message: "Product added", productId: "DUMMY" });
 });
 //http://localhost:3100/images/product-backpack.jpg
 
